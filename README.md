@@ -107,7 +107,7 @@ Detail table: item, elasticity, R², weeks_used, baseline price/qty, new price/q
 
 ## 6) What the scenarios show (the screenshots)
 
-### a) Scenario A — Price −10%
+### a) Scenario A — Price down by 10%
 
 ![image](https://github.com/ArbazAnalytics/Price-percent-change-Impact-Dashboard/blob/1840e1c5cbc1017c3a61aec12dd53e161996d791/price_down_by_10%25.jpg)
 New Weekly Revenue: 150.71 vs Baseline 109.84
@@ -116,7 +116,7 @@ Revenue Delta: +40.87 (+37.2%)
 
 Elastic items (e.g., Chicken Sandwich, Cheeseburger) gain revenue when prices are reduced, because the increase in quantity outweighs the lower price.
 
-### b) Scenario B — Price +10%
+### b) Scenario B — Price up by 10%
 
 ![image](https://github.com/ArbazAnalytics/Price-percent-change-Impact-Dashboard/blob/1840e1c5cbc1017c3a61aec12dd53e161996d791/price_up_by_10%25.jpg)
 
