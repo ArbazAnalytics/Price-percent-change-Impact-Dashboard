@@ -6,6 +6,7 @@ Prices move revenue and profit, but not every item reacts the same way. The goal
 
 ## 2) Data we started with
 
+![image alt](https://raw.githubusercontent.com/ArbazAnalytics/Price-percent-change-Impact-Dashboard/main/price_down_by_10%25.jpg)
 POS_DATA (CSV → Snowflake) containing:
 
 business_day, menu_item, quantity
