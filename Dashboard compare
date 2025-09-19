@@ -6,7 +6,7 @@ These screenshots show the final Sigma dashboard built on top of the Snowflake e
 ---
 price_down_by_10%.jpg
 ## Scenario A — Price −10%
-
+https://github.com/ArbazAnalytics/Price-percent-change-Impact-Dashboard/blob/59294bd63f0a65f5ac353842abf107aa07cb0a72/price_down_by_10%25.jpg
 - **New Weekly Revenue:** 150.71 vs Baseline 109.84  
 - **Revenue Delta:** +40.87 (+37.2%)  
 - Elastic items (e.g., Chicken Sandwich, Cheeseburger) generate **more revenue** when price is reduced, because the increase in quantity outweighs the lower price.  
