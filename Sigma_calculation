@@ -1,0 +1,42 @@
+# 📊 Sigma What-If Scenario Dashboard
+
+This folder documents the **Sigma dashboard** built on top of the SQL elasticity analysis.
+
+---
+
+## 1. Starting Point
+From SQL we had:
+- **Elasticity (slope):** demand sensitivity to price changes.
+- **R² (fit quality):** reliability of the elasticity estimate.
+- **Filtered results:** only items with `r² > 0.10` and `elasticity < 0` (valid demand curves).
+
+---
+
+## 2. Why More Calculations Were Needed
+Elasticity alone tells us the **% demand change when price changes**, but to evaluate *business impact* we also needed:
+
+- **Baseline Price & Quantity** → starting reference point.  
+- **New Price & New Quantity** → updated values after price change.  
+- **Revenue Delta** → difference between baseline and new revenue.  
+
+These calculations connect the *statistical model* to *real revenue outcomes*.
+
+---
+
+## 3. Core Formulas in Sigma
+
+```sql
+-- % Demand change based on elasticity and slider input
+Demand Change % = [Elasticity] * [Price Change %]
+
+-- New quantity sold
+New Quantity = [avg_weekly_qty] * (1 + [Demand Change %])
+
+-- New price
+New Price = [baseline_price] * (1 + [Price Change %])
+
+-- Simulated revenue (new average weekly revenue)
+New Revenue = [New_Qty] * [New_Price]
+
+-- Gain/loss vs baseline
+Revenue Delta = [New_Revenue] - [avg_weekly_revenue]
