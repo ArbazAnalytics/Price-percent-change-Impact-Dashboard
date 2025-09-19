@@ -1,4 +1,4 @@
-#Price Elasticity Project — From Raw POS to What-If Decisions
+# Price Elasticity Project — From Raw POS to What-If Decisions
 1) Why we did this
 
 Prices move revenue and profit, but not every item reacts the same way. The goal was to measure how sensitive each menu item’s demand is to price (elasticity) and then simulate revenue if prices go up or down (e.g., ±10%). This turns raw POS data into a simple “what if I change price by X%?” decision.
