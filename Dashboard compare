@@ -10,7 +10,7 @@ These screenshots show the final Sigma dashboard built on top of the Snowflake e
 - **Revenue Delta:** +40.87 (+37.2%)  
 - Elastic items (e.g., Chicken Sandwich, Cheeseburger) generate **more revenue** when price is reduced, because the increase in quantity outweighs the lower price.  
 
-![Price Down 10%](https://github.com/ArbazAnalytics/Price-percent-change-Impact-Dashboard/blob/main/price_down_by_10%25.jpg)
+![Price Down 10%](https://raw.githubusercontent.com/ArbazAnalytics/Price-percent-change-Impact-Dashboard/main/price_down_by_10%25.jpg)
 
 ---
 
@@ -20,7 +20,7 @@ These screenshots show the final Sigma dashboard built on top of the Snowflake e
 - **Revenue Delta:** −52.40 (−47.7%)  
 - Elastic items lose revenue when prices are raised. The drop in quantity is greater than the gain from higher prices.  
 
-![Price Up 10%](https://github.com/ArbazAnalytics/Price-percent-change-Impact-Dashboard/blob/main/price_up_by_10%25.jpg)
+![Price Up 10%](https://raw.githubusercontent.com/ArbazAnalytics/Price-percent-change-Impact-Dashboard/main/price_up_by_10%25.jpg)
 
 ---
 
