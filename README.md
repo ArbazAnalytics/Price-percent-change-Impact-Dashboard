@@ -2,7 +2,7 @@
 
 ## 1) Why we did this
 
-Prices move revenue and profit, but not every item reacts the same way. The goal was to measure how sensitive each menu item’s demand is to price (elasticity) and then simulate revenue if prices go up or down (e.g., ±10%). This turns raw POS data into a simple “what if I change price by X%?” decision.
+Prices move revenue and profit, but not every item reacts the same way. The goal was to measure how sensitive each menu item’s demand is to price (elasticity) and then simulate revenue if prices go up or down (e.g., ±10%). This turns raw POS data into a simple      “what if I change price by X%?” decision.
 
 ## 2) Data we started with
 
@@ -107,11 +107,24 @@ Detail table: item, elasticity, R², weeks_used, baseline price/qty, new price/q
 
 ## 6) What the scenarios show (the screenshots)
 
-Price −10%: Items with elastic demand often gain revenue (quantity lift outweighs lower price).
+### a) Scenario A — Price −10%
 
-Price +10%: Items with inelastic demand may hold revenue or even grow it (quantity drop is small).
+![image](https://github.com/ArbazAnalytics/Price-percent-change-Impact-Dashboard/blob/1840e1c5cbc1017c3a61aec12dd53e161996d791/price_down_by_10%25.jpg)
+New Weekly Revenue: 150.71 vs Baseline 109.84
 
-The dashboard makes this obvious at a glance: green bars when a cut helps, red bars when an increase hurts (and vice versa), item by item.
+Revenue Delta: +40.87 (+37.2%)
+
+Elastic items (e.g., Chicken Sandwich, Cheeseburger) gain revenue when prices are reduced, because the increase in quantity outweighs the lower price.
+
+### b) Scenario B — Price +10%
+
+![image](https://github.com/ArbazAnalytics/Price-percent-change-Impact-Dashboard/blob/1840e1c5cbc1017c3a61aec12dd53e161996d791/price_up_by_10%25.jpg)
+
+New Weekly Revenue: 57.44 vs Baseline 109.84
+
+Revenue Delta: −52.40 (−47.7%)
+
+Elastic items lose revenue when prices are raised. The drop in quantity is greater than the gain from higher prices.
 
 ## 7) What we learned (the “so what”)
 
