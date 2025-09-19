@@ -1,103 +1,93 @@
-01_weekly_demand_logs.sql
+1) Weekly Aggregation + Log Prep (Reusable View)
 
-02_elasticity_summary.sql
+Why: Elasticity is estimated on weekly data to reduce daily noise.
+We compute weekly average price and total quantity, plus log transforms for the regression.
+We keep both a precise (unrounded) avg_price_raw for logs and a pretty avg_price for display.
 
-03_filter_valid_items.sql
 
 
-1. Create Weekly Demand Logs
-CREATE OR REPLACE VIEW weekly_deman_logs AS
+CREATE OR REPLACE VIEW weekly_demand_logs AS
 WITH weekly AS (
   SELECT
-      Menu_item,
-      DATE_TRUNC('week', Business_Day) AS week_start,
-      AVG(net_unit_price)               AS avg_price_raw,
-      ROUND(AVG(net_unit_price), 2)     AS avg_price,
-      SUM(quantity)                     AS total_quantity,
-      SUM(net_unit_price * quantity)    AS weekly_revenue
+      MENU_ITEM,
+      DATE_TRUNC('week', BUSINESS_DAY)          AS WEEK_START,
+      AVG(NET_UNIT_PRICE)                       AS AVG_PRICE_RAW,   -- use for logs (avoid rounding bias)
+      ROUND(AVG(NET_UNIT_PRICE), 2)             AS AVG_PRICE,       -- readable
+      SUM(QUANTITY)                             AS TOTAL_QUANTITY
   FROM POS_DATA
-  WHERE net_unit_price > 0 AND quantity > 0
-  GROUP BY Menu_item, DATE_TRUNC('week', Business_Day)
+  GROUP BY MENU_ITEM, DATE_TRUNC('week', BUSINESS_DAY)
 )
 SELECT
-    Menu_item,
-    week_start,
-    avg_price,
-    total_quantity,
-    weekly_revenue,
-    LN(avg_price_raw)   AS In_price,
-    LN(total_quantity)  AS In_quantity
+    MENU_ITEM,
+    WEEK_START,
+    AVG_PRICE,
+    TOTAL_QUANTITY,
+    LN(AVG_PRICE_RAW)  AS LN_PRICE,
+    LN(TOTAL_QUANTITY) AS LN_QUANTITY
 FROM weekly
-WHERE avg_price_raw > 0
-  AND total_quantity > 0
-ORDER BY menu_item, week_start;
+WHERE AVG_PRICE_RAW    > 0
+  AND TOTAL_QUANTITY   > 0
+ORDER BY MENU_ITEM, WEEK_START;
 
 
-Why?
+Key points
 
-Groups sales into weekly buckets so demand/price trends are comparable over time.
+DATE_TRUNC('week', ...) gives a consistent weekly key for grouping.
 
-Uses log-transforms (LN) for price and quantity → this allows a log-log regression which directly estimates elasticity (slope = %ΔQ / %ΔP).
+Logs turn % changes into a straight-line relation (slope = elasticity).
 
-Filters out invalid data (price/quantity > 0).
 
-2. Create Elasticity Summary
-CREATE OR REPLACE VIEW elasticity_summary AS
-WITH item_stats AS (
+2) Elasticity per Item (slope) + Fit (R²)
+
+Why: In a log–log demand model
+  
+ln(Q)=α+β⋅ln(P)+ε
+
+the slope β is price elasticity. R² shows how well price explains demand.
+
+-- Per-item elasticity and diagnostics
+CREATE OR REPLACE VIEW item_elasticity AS
+SELECT
+    MENU_ITEM,
+    REGR_SLOPE(LN_QUANTITY, LN_PRICE) AS ELASTICITY,  -- β (price elasticity)
+    REGR_R2  (LN_QUANTITY, LN_PRICE)  AS R_SQUARED,   -- model fit (0..1)
+    COUNT(*)                           AS WEEKS_USED   -- sample size
+FROM weekly_demand_logs
+GROUP BY MENU_ITEM
+ORDER BY MENU_ITEM;
+
+
+Reading results
+
+Elasticity (β): negative is expected (price ↑ → quantity ↓).
+
+|β| > 1 → elastic (demand very price-sensitive)
+
+|β| < 1 → inelastic
+
+R²: closer to 1 = better fit. Low R² means price doesn’t explain much.
+
+
+
+3) Keep Only Usable Results (Filter)
+
+Why: We want items where the model has at least some explanatory power and enough data points.
+
+
+-- Tweak thresholds as needed (R² >= 0.10 is a pragmatic starting point in POS data)
+WITH per_item AS (
   SELECT
-      Menu_item,
-      COUNT(*)                                        AS weeks_used,
-      AVG(total_quantity)                             AS avg_weekly_qty,
-      AVG(weekly_revenue)                             AS avg_weekly_revenue,
-      SUM(weekly_revenue) / NULLIF(SUM(total_quantity), 0) AS qty_weighted_price,
-      MIN(week_start)                                 AS first_week,
-      MAX(week_start)                                 AS last_week
-  FROM weekly_deman_logs
-  GROUP BY Menu_item
-),
-elasticity_results AS (
-  SELECT
-      Menu_item,
-      REGR_SLOPE(In_quantity, In_price) AS elasticity,
-      REGR_R2(In_quantity, In_price)    AS r_squared
-  FROM weekly_deman_logs
-  GROUP BY Menu_item
+      MENU_ITEM,
+      REGR_SLOPE(LN_QUANTITY, LN_PRICE) AS ELASTICITY,
+      REGR_R2  (LN_QUANTITY, LN_PRICE)  AS R_SQUARED,
+      COUNT(*)                           AS WEEKS_USED
+  FROM weekly_demand_logs
+  GROUP BY MENU_ITEM
 )
-SELECT
-    e.Menu_item,
-    e.elasticity,
-    e.r_squared,
-    s.weeks_used,
-    s.avg_weekly_qty,
-    s.qty_weighted_price   AS baseline_price,
-    s.avg_weekly_revenue,
-    s.first_week,
-    s.last_week
-FROM elasticity_results e
-JOIN item_stats s USING (Menu_item);
+SELECT *
+FROM per_item
+WHERE R_SQUARED >= 0.10
+  AND ELASTICITY < 0          -- keep economically sensible sign
+  AND WEEKS_USED >= 15        -- ensure reasonable sample
+ORDER BY R_SQUARED DESC;
 
-
-Why?
-
-Joins regression outputs (elasticity + R²) with item-level stats.
-
-qty_weighted_price → better estimate of baseline price since it weights by sales volume.
-
-Provides time span (first_week, last_week) so users know coverage.
-
-3. Filter Valid Results
-SELECT
-    *
-FROM elasticity_summary
-WHERE r_squared > 0.10
-  AND elasticity < 0
-ORDER BY r_squared DESC;
-
-
-Why?
-
-r_squared > 0.10 → keeps only reasonably fitted models.
-
-elasticity < 0 → ensures we only keep normal products (higher price → lower demand).
-
-Sorting by R² highlights the most reliable elasticity estimates.
